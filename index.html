@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quiz Score Banner</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #111;
+        color: #fff;
+        overflow: hidden;
+    }
+
+    #banner-wrapper {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        background: #222;
+        padding: 15px 0;
+        overflow: hidden;
+        border-top: 3px solid #444;
+    }
+
+    #banner {
+        white-space: nowrap;
+        font-size: 32px;
+        display: inline-block;
+        animation: scroll-left 240s linear infinite;
+    }
+
+    @keyframes scroll-left {
+        from { transform: translateX(5%); }
+        to   { transform: translateX(-100%); }
+    }
+
+        #main-image-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 80px; /* leaves space for the banner */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #main-image {
+        max-width: 90%;
+        max-height: 90%;
+    }
+
+</style>
+</head>
+
+<body>
+
+<div id="banner-wrapper">
+    <div id="banner">Loading scores…</div>
+</div>
+
+<script>
+// Load CSV file and update banner
+async function loadScores() {
+    try {
+        const response = await fetch('scores.csv?t=' + Date.now());
+        const csvText = await response.text();
+
+        const lines = csvText.trim().split('\n');
+
+        // Parse CSV (team,points)
+        const items = lines.map(line => {
+            const [team, points] = line.split(',');
+            return `${team.trim()}: ${points.trim()} pts`;
+        });
+
+        // Join into scrolling text
+        document.getElementById('banner').textContent =
+            '   ⚡ ' + items.join('   •   ') + '   ⚡   ';
+    } catch (err) {
+        document.getElementById('banner').textContent =
+            'Error loading scores.csv';
+        console.error(err);
+    }
+}
+
+// Load immediately
+loadScores();
+
+// Optional: auto-refresh every 10 seconds
+setInterval(loadScores, 10000);
+</script>
+
+<div id="main-image-container">
+    <img src="quiz_sponsors.png" id="main-image">
+</div>
+
+</body>
+</html>
